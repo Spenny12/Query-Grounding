@@ -4,15 +4,12 @@ from transformers import pipeline
 
 # --- Model Loading ---
 
-# Use st.cache_resource to load the model only once and cache it for subsequent runs.
-# This is crucial for performance as downloading and loading the model can be slow.
 @st.cache_resource
 def load_grounding_model():
     """
     Loads and returns the HuggingFace text-classification pipeline.
     """
     st.info("Downloading the classification model... This may take a moment on the first run.")
-    # Initialize the pipeline with the specified model
     classifier = pipeline(
         "text-classification",
         model="dejanseo/query-grounding",
@@ -41,38 +38,31 @@ analyze_button = st.button("📊 Analyze Queries")
 
 # --- Analysis and Results ---
 if analyze_button and keywords_input:
-    # 1. Load the model from cache
     classifier = load_grounding_model()
-    
-    # 2. Process the input text into a list of queries
     keywords = [k.strip() for k in keywords_input.split('\n') if k.strip()]
-    
     results = []
-    
-    # 3. Show a spinner while processing
+
     with st.spinner(f"Analyzing {len(keywords)} queries..."):
-        # 4. Run each keyword through the model
         model_outputs = classifier(keywords)
-        
-        # 5. Parse the results to find the grounding score
+
         for keyword, output in zip(keywords, model_outputs):
-            grounding_score = 0.0 # Default score
+            grounding_score = 0.0
             for label in output:
-                if label['label'] == 'grounded':
+                # --- THIS IS THE CORRECTED LINE ---
+                # Check for either the text label or the raw internal label.
+                if label['label'] == 'grounded' or label['label'] == 'LABEL_1':
                     grounding_score = label['score']
-                    break # Stop once we find the 'grounded' label
-            
+                    break
+
             results.append({
                 "Query": keyword,
                 "Grounding Chance": grounding_score
             })
 
     st.success("Analysis complete!")
-    
-    # 6. Display the results in a DataFrame
+
     df = pd.DataFrame(results)
-    
-    # Format the 'Grounding Chance' column as a percentage
+
     st.dataframe(
         df,
         column_config={
