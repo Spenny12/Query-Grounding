@@ -70,4 +70,14 @@ if analyze_button and keywords_input:
                 "Grounding Chance (%)",
                 help="The model's confidence that the query is seeking factual, objective information.",
                 format="%.1f%%",
-                min_value=
+                min_value=0,
+                # --- CHANGE 2: Set the max_value to 100 to match the new scale ---
+                max_value=100,
+            ),
+        },
+        use_container_width=True,
+        hide_index=True
+    )
+
+elif analyze_button:
+    st.warning("Please enter at least one keyword to analyze.")
