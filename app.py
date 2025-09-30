@@ -48,15 +48,14 @@ if analyze_button and keywords_input:
         for keyword, output in zip(keywords, model_outputs):
             grounding_score = 0.0
             for label in output:
-                # --- THIS IS THE CORRECTED LINE ---
-                # Check for either the text label or the raw internal label.
                 if label['label'] == 'grounded' or label['label'] == 'LABEL_1':
                     grounding_score = label['score']
                     break
 
             results.append({
                 "Query": keyword,
-                "Grounding Chance": grounding_score
+                # --- CHANGE 1: Multiply score by 100 to convert to percentage ---
+                "Grounding Chance": grounding_score * 100
             })
 
     st.success("Analysis complete!")
@@ -71,13 +70,4 @@ if analyze_button and keywords_input:
                 "Grounding Chance (%)",
                 help="The model's confidence that the query is seeking factual, objective information.",
                 format="%.1f%%",
-                min_value=0,
-                max_value=1,
-            ),
-        },
-        use_container_width=True,
-        hide_index=True
-    )
-
-elif analyze_button:
-    st.warning("Please enter at least one keyword to analyze.")
+                min_value=
